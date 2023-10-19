@@ -1,5 +1,6 @@
-import torch
-from active_divergence import distributions as dist
+import torch, numpy as np
+from collections import OrderedDict
+from . import distributions as dist
 
 # Probability handling for scripting / tracing
 

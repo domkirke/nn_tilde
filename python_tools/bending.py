@@ -17,7 +17,6 @@ class BendableModule(nn_tilde.Module):
     ## Bendable attributes handling
     def _get_bending_control(self, name: str) -> torch.Tensor:
         """returns value of a bending control by name"""
-        # grrr
         for v in self.bending_controls:
             if v.name == name:
                 return v.value.data
@@ -44,17 +43,17 @@ class BendableModule(nn_tilde.Module):
             self.register_attribute(control.name, float(control.value))
         self._has_initialized_controllables = True
 
-    def hack_module(self, module: nn.Module, act_hacks = [], weight_hacks = [], prefix="", input_shape=None) -> fx.GraphModule:
+    def hack_module(self, module: nn.Module, act_hacks = [], weight_hacks = [], prefix="", input_shape=None, concrete_args={}) -> fx.GraphModule:
         if not self._has_initialized_controllables:
             self.parse_controllables(act_hacks=act_hacks, weight_hacks=weight_hacks)
         self.hack_parameters(module, weight_hacks=weight_hacks, prefix=prefix)
-        return self.hack_graphs(module, act_hacks=act_hacks, prefix=prefix, input_shape=input_shape)
+        return self.hack_graphs(module, act_hacks=act_hacks, prefix=prefix, input_shape=input_shape, concrete_args=concrete_args)
 
-    def hack_graphs(self, module, act_hacks, prefix="", input_shape = None):
+    def hack_graphs(self, module, act_hacks, prefix="", input_shape = None, concrete_args={}):
         if input_shape is None:
             assert hasattr(module, "input_shape"), "module of type %s does not have input_shape attribute ; please specify manually"%(type(module))
             input_shape = module.input_shape
-        acts = [o[0] for o in get_activations(module=module,func="forward", input_shape=input_shape, print_tabular=False)]
+        acts = [o[0] for o in get_activations(module=module,func="forward", input_shape=input_shape, concrete_args=concrete_args)]
         _new_act_hacks = {}
         for callback, act_names in act_hacks:
             act_names = checklist(act_names)

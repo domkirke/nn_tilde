@@ -1,10 +1,11 @@
+import re
 import torch, torch.nn as nn, torch.fx as fx
 from collections import OrderedDict
 from typing import Union
 from . import distributions as dist
-from .utils.script import dist_to_tensor
-from .utils.misc import _recursive_to
-from typing import Any
+from .utils import dist_to_tensor, checklist
+from genesis.utils.misc import _recursive_to
+from typing import Any, List, Iterable
 
 
 ## Utils
@@ -20,7 +21,12 @@ class ActivationScrapper(fx.Interpreter):
     def run_node(self, n: fx.Node) -> Any:
         out = super().run_node(n)
         if n.op == "call_module":
-            self.activations.append((n.name, out.shape))
+            if isinstance(out, tuple):
+                # self.activations.append((n.name, out[0].shape))
+                for i, o in enumerate(out):
+                    self.activations.append((n.name+f"_{i}", o.shape))
+            else:
+                self.activations.append((n.name, out.shape))
         return out
 
     def run(self, *args, **kwargs):
@@ -34,9 +40,60 @@ def _check_shape(shape, fill_value: int = 1):
             shape[i] = fill_value
     return tuple(shape)
 
+def _get_weight_properties(name, value):
+    try:
+       minval = value.min()
+       maxval = value.max() 
+    except:
+       minval = torch.nan
+       maxval = torch.nan
+    try:
+       meanval = value.mean()
+       stdval = value.std() 
+    except:
+       meanval = torch.nan
+       stdval = torch.nan    
+    return [name, value.shape, value.dtype, minval, maxval, meanval, stdval]
 
-def get_activations(module: nn.Module, func, input_shape):
-    graph = ActDivTracer(func=func).trace(module)
+def get_weights(model, reg: Union[str, List[str]] = None, ) -> Iterable[str]:
+    if reg is not None:
+        reg = checklist(reg)
+    try:
+        params = model.state_dict(with_versions=False).copy()
+    except:
+        params = model.state_dict().copy()
+    parsed_weights = []
+
+    # filter from regexp in case
+    for p, v in params.items():
+        if reg is not None:
+            reg_out = set([re.match(r, p) for r in reg])
+            if reg_out == {None}: 
+                continue
+        parsed_weights.append(_get_weight_properties(p, v))
+
+    parsed_weights.sort()
+    return parsed_weights
+
+def get_weight_info(name: str, model, verbose: bool = False):
+    weight = dict(model.named_parameters()).get(name)
+    if weight is None:
+        raise ValueError("model of type %s does not have weight : %s"%(type(model), weight))
+    if verbose:
+        print(f"parameter {name}\n- shape : {weight.shape}\n- dtype : {weight.dtype}")
+    return weight.shape, weight.dtype
+
+def get_activations(module: nn.Module, func: str = "forward", input_shape=None, concrete_args={}):
+    if input_shape is None:
+        try: 
+            params = getattr(module, func+"_params")
+            n_channels = params[0]
+            min_shape = 2 * params[1]
+            input_shape = (1, int(n_channels), int(min_shape))
+            print('Inferred shape %s for method %s'%(input_shape, func))
+        except: 
+            raise RuntimeError('Could not infer input shape for method %s ; please provide input_shape keyword argument explicitely.')
+    graph = ActDivTracer(func=func).trace(module, concrete_args=concrete_args)
     gm = fx.GraphModule(module, graph)
     scraper = ActivationScrapper(gm)
     input_shape = _check_shape(input_shape)
