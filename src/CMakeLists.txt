@@ -13,6 +13,7 @@ if (APPLE)
     endif()
     message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
+    # add_compile_options(-std=c++20)
     set(MODELS_PATH_LOCATION "~/Documents/ACIDS/Models")
 endif()
 
