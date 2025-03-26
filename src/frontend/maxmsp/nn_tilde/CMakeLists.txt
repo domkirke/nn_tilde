@@ -75,8 +75,7 @@ if (APPLE) # COPY TORCH DYLIB IN THE LOADER FOLDER
 	add_custom_command( 
 		TARGET ${PROJECT_NAME} 
 		POST_BUILD 
-		COMMAND cp "${CMAKE_CURRENT_BINARY_DIR}/../../../_deps/curl-build/lib/libcurl.dylib" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
-		COMMAND cp "${CMAKE_CURRENT_BINARY_DIR}/../../../_deps/curl-build/lib/libcurl-d.dylib" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+		COMMAND cp "${CMAKE_CURRENT_BINARY_DIR}/../../../_deps/curl-build/lib/*.dylib" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
 		COMMENT "Copy libcurl" 
 	)
 
