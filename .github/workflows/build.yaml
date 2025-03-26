@@ -13,6 +13,8 @@ jobs:
       - run: | 
           git submodule update --init --recursive
           git fetch --tags
+          echo "existing tags : "
+          git tag -l
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh > miniconda.sh
@@ -28,7 +30,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ../src -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=arm64
+          GIT_TRACE=1 cmake ../src -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=arm64
           make
       - name: Max/MSP Package creation
         run: |
