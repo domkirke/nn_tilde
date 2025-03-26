@@ -16,7 +16,6 @@ jobs:
           git submodule update --init --recursive
           git fetch --tags
           GIT_TRACE=1 git describe --tags --always
-          
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh > miniconda.sh
