@@ -6,6 +6,18 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (APPLE)
+    set(CMAKE_CXX_FLAGS "-faligned-allocation")
+    if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
+        set(CMAKE_OSX_ARCHITECTURES ${CMAKE_HOST_SYSTEM_PROCESSOR})
+    endif()
+    message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
+    add_compile_options(-std=c++20)
+    set(MODELS_PATH_LOCATION "~/Documents/ACIDS/Models")
+endif()
+
+
 include(FetchContent)
 
 
@@ -32,17 +44,6 @@ FetchContent_MakeAvailable(json)
 
 # message("CURL LOCATION : ${CURL_LOCATION}")
 # list(APPEND CMAKE_PREFIX_PATH CURL_LOCATION)
-
-if (APPLE)
-    set(CMAKE_CXX_FLAGS "-faligned-allocation")
-    if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
-        set(CMAKE_OSX_ARCHITECTURES ${CMAKE_HOST_SYSTEM_PROCESSOR})
-    endif()
-    message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
-    add_compile_options(-std=c++20)
-    set(MODELS_PATH_LOCATION "~/Documents/ACIDS/Models")
-endif()
 
 if (MSVC)
   set(MODELS_PATH_LOCATION "C:\\Program Files\\YourApplication\\ACIDS\\Models")
