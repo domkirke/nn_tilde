@@ -13,8 +13,8 @@ jobs:
       - run: | 
           git submodule update --init --recursive
           git fetch --tags
-          echo "existing tags : "
-          git tag -l
+          git checkout devdeploy
+          GIT_TRACE=1 git describe --tags
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh > miniconda.sh
