@@ -39,7 +39,10 @@ if (UNIX)
 			OUTPUT_VARIABLE VERSION
 			OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
-	message(${VERSION})
+	if (NOT VERSION)
+		set(VERSION v0.0.0)
+	endif()
+	message("${VERSION}")
 	add_definitions(-DVERSION="${VERSION}")
 endif()
 

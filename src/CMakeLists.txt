@@ -58,8 +58,6 @@ find_package(CURL REQUIRED)
 # manage CURL dependency
 # file(GLOB CURL_DYLIB_PATH "../env/lib/libcurl*.dylib")
 # file(GLOB CURL_INCLUDE_DIR "../env/pkgs/libcurl*/include/curl")
-
-
 add_subdirectory(backend) # DEEP LEARNING BACKEND
 
 
