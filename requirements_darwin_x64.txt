@@ -1,2 +1,2 @@
-torch==2.1.2
+torch1
 cached_conv>=2.5.0
