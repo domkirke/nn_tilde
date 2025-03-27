@@ -70,7 +70,7 @@ jobs:
       - name: Setup LLVM
         run: |
           brew install llvm
-          
+
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > miniconda.sh
@@ -78,6 +78,9 @@ jobs:
           bash ./miniconda.sh -b -u -p ./env
           source ./env/bin/activate
           pip install -r requirements_darwin_x64.txt
+          TARGET_DIR=$(find env/lib -type d -name "python3*")
+          TARGET_DIR="${TARGET_DIR}/site-packages/torch/share/cmake/Caffe2/public"
+          cp install/mkl.cmake "${TARGET_DIR}"
       - name: Setup puredata
         run: |
           mkdir puredata_include
