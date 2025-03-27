@@ -5,6 +5,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(SET CMP00076)
 
 
 
@@ -15,14 +16,18 @@ include(FetchContent)
 FetchContent_Declare(
   curl
   URL https://github.com/curl/curl/releases/download/curl-7_79_1/curl-7.79.1.tar.gz
+  CMAKE_ARGS -DCMAKE_OSX_ARCHITECTURES="${CMAKE_OSX_ARCHITECTURES}"
 )
 FetchContent_MakeAvailable(curl)
+
 
 # import json
 FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG v3.11.2  # Specify the version you want to use
+  CMAKE_ARGS
+    -DCMAKE_OSX_ARCHITECTURES="${CMAKE_OSX_ARCHITECTURES}"
 )
 FetchContent_MakeAvailable(json)
 
@@ -44,17 +49,9 @@ if (APPLE)
     message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
     add_compile_options(-std=c++20)
-    set(MODELS_PATH_LOCATION "~/Documents/ACIDS/Models")
 endif()
 
 
-if (MSVC)
-  set(MODELS_PATH_LOCATION "C:\\Program Files\\YourApplication\\ACIDS\\Models")
-endif() 
-
-if (UNIX AND NOT APPLE) 
-  set(MODELS_PATH_LOCATION "/urs/share/acids/models")
-endif()
 
 find_package(Torch REQUIRED)
 find_package(CURL REQUIRED)

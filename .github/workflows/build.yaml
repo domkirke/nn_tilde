@@ -76,7 +76,7 @@ jobs:
           chmod 777 ./miniconda.sh
           bash ./miniconda.sh -b -u -p ./env
           source ./env/bin/activate
-          pip install -r requirements.txt
+          pip install -r requirements_darwin_x64.txt
       - name: Setup puredata
         run: |
           mkdir puredata_include
