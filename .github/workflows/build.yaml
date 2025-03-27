@@ -59,7 +59,7 @@ jobs:
       #       nn_puredata_macOS_arm64.tar.gz
 
   osx-x64-build:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -69,7 +69,7 @@ jobs:
           GIT_TRACE=1 git describe --tags --always
       - name: Setup LLVM
         run: |
-          brew install llvm
+        arch -x86_64 brew install llvm
 
       - name: Setup miniconda
         run: |
@@ -91,8 +91,8 @@ jobs:
           export CC=$(brew --prefix llvm)/bin/clang
           export CXX=$(brew --prefix llvm)/bin/clang++
           cd build
-          cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
-          make
+          arch -x86_64 cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
+          arch -x86_64 make
       - name: Max/MSP Package creation
         run: |
           mkdir nn_tilde
