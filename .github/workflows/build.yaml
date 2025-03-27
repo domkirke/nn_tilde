@@ -69,7 +69,7 @@ jobs:
           GIT_TRACE=1 git describe --tags --always
       - name: Setup LLVM
         run: |
-        arch -x86_64 brew install llvm
+          arch -x86_64 brew install llvm
 
       - name: Setup miniconda
         run: |
