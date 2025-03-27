@@ -12,11 +12,12 @@ set(SET CMP00076)
 include(FetchContent)
 
 
+message("Building for architecture : ${CMAKE_OSX_ARCHITECTURES}")
 # import curl
 FetchContent_Declare(
   curl
   URL https://github.com/curl/curl/releases/download/curl-7_79_1/curl-7.79.1.tar.gz
-  CMAKE_ARGS -DCMAKE_OSX_ARCHITECTURES="${CMAKE_OSX_ARCHITECTURES}"
+  CMAKE_ARGS "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}"
 )
 FetchContent_MakeAvailable(curl)
 
@@ -26,8 +27,7 @@ FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG v3.11.2  # Specify the version you want to use
-  CMAKE_ARGS
-    -DCMAKE_OSX_ARCHITECTURES="${CMAKE_OSX_ARCHITECTURES}"
+  CMAKE_ARGS "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}" 
 )
 FetchContent_MakeAvailable(json)
 
