@@ -67,6 +67,17 @@ jobs:
           git submodule update --init --recursive
           git fetch --tags
           git describe --tags --always
+          sudo rm -rf /opt/homebrew/
+
+    
+      - name: Install x86_64 Homebrew
+        - run: |
+          sudo rm -rf /usr/local/homebrew
+          sudo mkdir -p /usr/local/homebrew
+          sudo chown -R $(whoami) /usr/local/homebrew
+          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
+          arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
+  
 
       - name: Setup miniconda
         run: |
@@ -79,14 +90,6 @@ jobs:
           TARGET_DIR=$(find env/lib -type d -name "python3*")
           TARGET_DIR="${TARGET_DIR}/site-packages/torch/share/cmake/Caffe2/public"
           cp install/mkl.cmake "${TARGET_DIR}"  
-
-      - name: Install x86_64 Homebrew
-        run: |
-          sudo rm -rf /usr/local/homebrew
-          sudo mkdir -p /usr/local/homebrew
-          sudo chown -R $(whoami) /usr/local/homebrew
-          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
-          arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
 
       - name: Setup LLVM
         run: |
@@ -120,8 +123,8 @@ jobs:
           export CC=$(/usr/local/bin/brew --prefix llvm)/bin/clang
           export CXX=$(/usr/local/bin/brew --prefix llvm)/bin/clang++
           cd build
-          cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
-          make
+          arch -x86_64 cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
+          arch -x86_64 make
       - name: Max/MSP Package creation
         run: |
           mkdir nn_tilde
