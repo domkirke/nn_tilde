@@ -74,9 +74,11 @@ jobs:
           sudo chown -R $(whoami) /usr/local/homebrew
           arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
           arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
+          file /usr/local/bin/brew
       - name: Setup LLVM
         run: |
-          arch -x86_64 brew install llvm
+          brew install llvm
+          file /opt/homebrew/opt/llvm/bin/clang
 
       - name: Setup miniconda
         run: |
