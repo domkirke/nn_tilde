@@ -90,7 +90,6 @@ jobs:
 
       - name: Setup LLVM
         run: |
-          /usr/local/bin/brew link --overwrite python@3.13
           rm '/usr/local/bin/pydoc3'
           rm /usr/local/bin/pydoc3.13
           rm /usr/local/bin/python3
