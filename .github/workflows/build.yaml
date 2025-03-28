@@ -74,11 +74,16 @@ jobs:
           sudo chown -R $(whoami) /usr/local/homebrew
           arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
           arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
-          file /usr/local/bin/brew
+          export HOMEBREW_PREFIX: "/usr/local";
+          export HOMEBREW_CELLAR: "/usr/local/Cellar";
+          export HOMEBREW_REPOSITORY: "/usr/local/Homebrew";
       - name: Setup LLVM
         run: |
-          brew install llvm
-          file /opt/homebrew/opt/llvm/bin/clang
+          arch -x86_64 /usr/local/bin/brew install llvm
+          export LDFLAGS="-L/usr/local/homebrew/opt/llvm/lib"
+          export CPPFLAGS="-I/usr/local/homebrew/opt/llvm/include"
+          ls $LDFLAGS
+          ls $CPPFLAGS
 
       - name: Setup miniconda
         run: |
