@@ -70,14 +70,10 @@ jobs:
       - name: Install x86_64 Homebrew
         run: |
           arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $GITHUB_ENV
-      - name: Verify Homebrew Installation
-        run: |
-          arch -x86_64 brew install hello
-          arch -x86_64 hello
+          arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
       - name: Setup LLVM
         run: |
-          brew install llvm
+          arch -x86_64 brew install llvm
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > miniconda.sh
