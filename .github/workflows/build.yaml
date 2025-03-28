@@ -90,7 +90,7 @@ jobs:
 
       - name: Setup LLVM
         run: |
-          brew link --overwrite python@3.13
+          /usr/local/bin/brew link --overwrite python@3.13
           rm '/usr/local/bin/pydoc3'
           rm /usr/local/bin/pydoc3.13
           rm /usr/local/bin/python3
@@ -118,8 +118,8 @@ jobs:
       - name: Build
         run: |
           mkdir build
-          export CC=$(brew --prefix llvm)/bin/clang
-          export CXX=$(brew --prefix llvm)/bin/clang++
+          export CC=$(/usr/local/bin/brew --prefix llvm)/bin/clang
+          export CXX=$(/usr/local/bin/brew --prefix llvm)/bin/clang++
           cd build
           cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
           make
