@@ -79,6 +79,7 @@ jobs:
           bash ./miniconda.sh -b -u -p ./env
           source ./env/bin/activate
           arch -x86_64 pip install -r requirements.txt
+          arch -x86_64 pip install cmake
           TARGET_DIR=$(find env/lib -type d -name "python3*")
           TARGET_DIR="${TARGET_DIR}/site-packages/torch/share/cmake/Caffe2/public"
           cp install/mkl.cmake "${TARGET_DIR}"

@@ -8,6 +8,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SET CMP00076)
 
 
+message("$ENV{CONDA_PREFIX}/lib/libcrypto.dylib")
+find_library(OpenSSL_LIB NAMES OpenSSL PATHS "$ENV{CONDA_PREFIX}/lib/libcrypto.dylib" NO_DEFAULT_PATH)
+if (OpenSSL)
+  message("OpenSSL found")
+else() 
+  message("OpenSSL not found")
+endif()
+
 
 include(FetchContent)
 
@@ -17,7 +25,7 @@ message("Building for architecture : ${CMAKE_OSX_ARCHITECTURES}")
 FetchContent_Declare(
   curl
   URL https://github.com/curl/curl/releases/download/curl-7_79_1/curl-7.79.1.tar.gz
-  CMAKE_ARGS "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}"
+  CMAKE_ARGS "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}" "-DCMAKE_PREFIX_PATH=../env/lib/python3.12/site-packages/torch;$CONDA_PREFIX" "-DCMAKE_LIBRARY_PATH=$CONDA_PREFIX/lib" "-DCMAKE_INCLUDE_PATH=$CONDA_PREFIX/include"
 )
 FetchContent_MakeAvailable(curl)
 
@@ -50,8 +58,6 @@ if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
     add_compile_options(-std=c++20)
 endif()
-
-
 
 find_package(Torch REQUIRED)
 find_package(CURL REQUIRED)
