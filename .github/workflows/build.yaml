@@ -67,23 +67,6 @@ jobs:
           git submodule update --init --recursive
           git fetch --tags
           git describe --tags --always
-      - name: Install x86_64 Homebrew
-        run: |
-          sudo rm -rf /usr/local/homebrew
-          sudo mkdir -p /usr/local/homebrew
-          sudo chown -R $(whoami) /usr/local/homebrew
-          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
-          arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
-
-      - name: Setup LLVM
-        run: |
-          arch -x86_64 /usr/local/bin/brew install llvm
-          export LDFLAGS="-L/usr/local/homebrew/opt/llvm/lib"
-          export CPPFLAGS="-I/usr/local/homebrew/opt/llvm/include"
-          ls $LDFLAGS
-          ls $CPPFLAGS
-          echo "CLANG CONFIGURATION : $(which clang)"
-          file $(which clang)
 
       - name: Setup miniconda
         run: |
@@ -95,7 +78,30 @@ jobs:
           arch -x86_64 pip install cmake
           TARGET_DIR=$(find env/lib -type d -name "python3*")
           TARGET_DIR="${TARGET_DIR}/site-packages/torch/share/cmake/Caffe2/public"
-          cp install/mkl.cmake "${TARGET_DIR}"
+          cp install/mkl.cmake "${TARGET_DIR}"  
+
+      - name: Install x86_64 Homebrew
+        run: |
+          sudo rm -rf /usr/local/homebrew
+          sudo mkdir -p /usr/local/homebrew
+          sudo chown -R $(whoami) /usr/local/homebrew
+          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
+          arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
+
+      - name: Setup LLVM
+        run: |
+          arch -x86_64 /usr/local/bin/brew install llvm
+          echo "exporting flags"
+          export LDFLAGS="-L/usr/local/opt/llvm/lib"
+          export CPPFLAGS="-I/usr/local/opt/llvm/include"
+          echo "compilation flags : "
+          echo $LDFLAGS
+          echo $CPPFLAGS
+          echo "printing clang config"
+          echo "CLANG CONFIGURATION : $(which clang)"
+          file $(which clang)
+
+      
       - name: Setup puredata
         run: |
           mkdir puredata_include
