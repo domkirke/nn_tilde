@@ -91,6 +91,7 @@ jobs:
       - name: Setup LLVM
         run: |
           rm '/usr/local/bin/idle3'
+          rm '/usr/local/bin/idle3.13'
           arch -x86_64 /usr/local/bin/brew install llvm
           echo "exporting flags"
           export LDFLAGS="-L/usr/local/opt/llvm/lib"
