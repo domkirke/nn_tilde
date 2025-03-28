@@ -69,12 +69,14 @@ jobs:
           git describe --tags --always
       - name: Install x86_64 Homebrew
         run: |
+          sudo mkdir -p /usr/local/homebrew
+          sudo chown -R $(whoami) /usr/local/homebrew
           arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
       - name: Setup LLVM
         run: |
           arch -x86_64 brew install llvm
-          
+
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > miniconda.sh
