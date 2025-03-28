@@ -69,9 +69,8 @@ jobs:
           git describe --tags --always
           sudo rm -rf /opt/homebrew/
 
-    
       - name: Install x86_64 Homebrew
-        - run: |
+        run: |
           sudo rm -rf /usr/local/homebrew
           sudo mkdir -p /usr/local/homebrew
           sudo chown -R $(whoami) /usr/local/homebrew
