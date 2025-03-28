@@ -67,9 +67,10 @@ jobs:
           git submodule update --init --recursive
           git fetch --tags
           git describe --tags --always
+
       - name: Setup LLVM
         run: |
-          arch -x86_64 brew install llvm
+          brew install llvm
 
       - name: Setup miniconda
         run: |
