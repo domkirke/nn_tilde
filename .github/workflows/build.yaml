@@ -92,6 +92,11 @@ jobs:
         run: |
           brew link --overwrite python@3.13
           rm '/usr/local/bin/pydoc3'
+          rm /usr/local/bin/pydoc3.13
+          rm /usr/local/bin/python3
+          rm /usr/local/bin/python3-config
+          rm /usr/local/bin/python3.13
+          rm /usr/local/bin/python3.13-config
           rm '/usr/local/bin/idle3'
           rm '/usr/local/bin/idle3.13'
           arch -x86_64 /usr/local/bin/brew install llvm
