@@ -187,7 +187,7 @@ jobs:
           mv build/frontend/puredata/nn_tilde/Release/* nn_tilde/
           tar -czvf nn_puredata_windows_x64.tar.gz nn_tilde
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: nn_tilde
           path: |
