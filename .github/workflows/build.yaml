@@ -206,7 +206,7 @@ jobs:
     # needs: [osx-arm64-build, osx-x64-build]
     steps:
       - name: Download build binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: nn_tilde
       - name: Automated Release
