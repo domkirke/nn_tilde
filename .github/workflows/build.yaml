@@ -69,7 +69,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        
+
       - run: | 
           git submodule update --init --recursive
           git fetch --tags
@@ -107,15 +107,8 @@ jobs:
           rm '/usr/local/bin/idle3'
           rm '/usr/local/bin/idle3.13'
           arch -x86_64 /usr/local/bin/brew install llvm
-          echo "exporting flags"
           export LDFLAGS="-L/usr/local/opt/llvm/lib"
           export CPPFLAGS="-I/usr/local/opt/llvm/include"
-          echo "compilation flags : "
-          echo $LDFLAGS
-          echo $CPPFLAGS
-          echo "printing clang config"
-          echo "CLANG CONFIGURATION : $(which clang)"
-          file $(which clang)
 
       
       - name: Setup puredata
