@@ -59,7 +59,7 @@ jobs:
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: nn_tilde_macOS_arm64
+          name: nn_tilde
           path: |
             nn_max_msp_macOS_arm64.tar.gz
             nn_puredata_macOS_arm64.tar.gz
@@ -140,7 +140,7 @@ jobs:
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: nn_tilde_macOS_x64
+          name: nn_tilde
           path: |
             nn_max_msp_macOS_x64.tar.gz
             nn_puredata_macOS_x64.tar.gz
@@ -195,25 +195,11 @@ jobs:
     # needs: [osx-arm64-build, osx-x64-build, windows-x64-build]
     needs: [osx-arm64-build, osx-x64-build]
     steps:
-      - name: Download build binaries (mac_x64)
+      - name: Download build binaries
         uses: actions/download-artifact@v4
         with:
-          name: nn_tilde_macOS_x64
-      - name: Automated Release (mac_x64)
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          files: |
-            nn_max_msp_macOS_x64.tar.gz
-            nn_puredata_macOS_x64.tar.gz
-            # nn_max_msp_windows_x64.tar.gz
-            # nn_puredata_windows_x64.tar.gz
-      - name: Download build binaries (mac_arm64)
-        uses: actions/download-artifact@v4
-        with:
-          name: nn_tilde_macOS_arm64
-      - name: Automated Release (mac_arm64)
+          name: nn_tilde
+      - name: Automated Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -221,3 +207,8 @@ jobs:
           files: |
             nn_max_msp_macOS_arm64.tar.gz
             nn_puredata_macOS_arm64.tar.gz
+            nn_max_msp_macOS_x64.tar.gz
+            nn_puredata_macOS_x64.tar.gz
+            # nn_max_msp_windows_x64.tar.gz
+            # nn_puredata_windows_x64.tar.gz
+
