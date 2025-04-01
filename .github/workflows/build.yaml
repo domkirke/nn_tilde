@@ -111,11 +111,12 @@ jobs:
           export LDFLAGS="-L/usr/local/opt/llvm/lib"
           export CPPFLAGS="-I/usr/local/opt/llvm/include"
 
-      - name: Setup CURL
+      - name: Setup OpenSSL & CURL 
         run: |
           arch -x86_64 /usr/local/bin/brew install curl
           export LDFLAGS="$LDFLAGS -L/usr/local/opt/curl/lib"
           export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/curl/include"
+          arch -x86_64 /usr/local/bin/brew install openssl@3
       
       - name: Setup puredata
         run: |
