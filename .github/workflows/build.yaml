@@ -111,6 +111,11 @@ jobs:
           export LDFLAGS="-L/usr/local/opt/llvm/lib"
           export CPPFLAGS="-I/usr/local/opt/llvm/include"
 
+      - name: Setup CURL
+        run: |
+          arch -x86_64 /usr/local/bin/brew install curl
+          export LDFLAGS="$LDFLAGS -L/usr/local/opt/curl/lib"
+          export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/curl/include"
       
       - name: Setup puredata
         run: |
@@ -124,6 +129,8 @@ jobs:
           cd build
           arch -x86_64 ../env/bin/cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
           arch -x86_64 make
+          echo "linked libraries : "
+          otool -l ../src/externals/nn\~.mxo/Contents/MacOS/nn\~ 2> /dev/null
       - name: Max/MSP Package creation
         run: |
           mkdir nn_tilde
