@@ -186,7 +186,6 @@ endif()
 target_include_directories(nn PRIVATE "${PUREDATA_INCLUDE_DIR}")
 target_link_libraries(nn PRIVATE backend)
 
-
 set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
 set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
 set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
