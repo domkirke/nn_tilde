@@ -153,7 +153,7 @@ std::string ModelDownloader::get_string_from_api_callback(std::string &address) 
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            throw std::string("could not fetch available models from API: ");
+            throw std::string("could not fetch available models from API. Code from API: ") + std::to_string(res);
         }
         // Clean up
         curl_easy_cleanup(curl);
@@ -233,7 +233,6 @@ void ModelDownloader::worker() {
         task();
     }
 }
-
 
 void ModelDownloader::enqueue_download_task(DownloadTask task) {
     {
