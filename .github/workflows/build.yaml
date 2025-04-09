@@ -68,89 +68,89 @@ jobs:
             nn_max_msp_macOS_arm64.tar.gz
             nn_puredata_macOS_arm64.tar.gz
 
-  osx-x64-build:
-    runs-on: macos-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+  # osx-x64-build:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
 
-      - run: | 
-          git submodule update --init --recursive
-          git fetch --tags
-          git describe --tags --always
+  #     - run: | 
+  #         git submodule update --init --recursive
+  #         git fetch --tags
+  #         git describe --tags --always
 
-      - name: Install x86_64 Homebrew
-        run: |
-          sudo rm -rf /opt/homebrew
-          sudo rm -rf /usr/local/homebrew
-          sudo mkdir -p /usr/local/homebrew
-          sudo chown -R $(whoami) /usr/local/homebrew
-          arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
-          arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
+  #     - name: Install x86_64 Homebrew
+  #       run: |
+  #         sudo rm -rf /opt/homebrew
+  #         sudo rm -rf /usr/local/homebrew
+  #         sudo mkdir -p /usr/local/homebrew
+  #         sudo chown -R $(whoami) /usr/local/homebrew
+  #         arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" --prefix=/usr/local/homebrew
+  #         arch -x86_64 /usr/local/bin/brew shellenv >> $GITHUB_ENV
 
-      - name: Setup miniconda
-        run: |
-          curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > miniconda.sh
-          chmod 777 ./miniconda.sh
-          bash ./miniconda.sh -b -u -p ./env
-          source ./env/bin/activate
-          arch -x86_64 pip install -r requirements.txt
-          arch -x86_64 pip install cmake==3.28
-          arch -x86_64 conda install -c conda-forge curl
-          TARGET_DIR=$(find env/lib -type d -name "python3*")
-          TARGET_DIR="${TARGET_DIR}/site-packages/torch/share/cmake/Caffe2/public"
-          cp install/mkl.cmake "${TARGET_DIR}"  
+  #     - name: Setup miniconda
+  #       run: |
+  #         curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh > miniconda.sh
+  #         chmod 777 ./miniconda.sh
+  #         bash ./miniconda.sh -b -u -p ./env
+  #         source ./env/bin/activate
+  #         arch -x86_64 pip install -r requirements.txt
+  #         arch -x86_64 pip install cmake==3.28
+  #         arch -x86_64 conda install -c conda-forge curl
+  #         TARGET_DIR=$(find env/lib -type d -name "python3*")
+  #         TARGET_DIR="${TARGET_DIR}/site-packages/torch/share/cmake/Caffe2/public"
+  #         cp install/mkl.cmake "${TARGET_DIR}"  
 
-      - name: Setup LLVM
-        run: |
-          rm '/usr/local/bin/pydoc3'
-          rm /usr/local/bin/pydoc3.13
-          rm /usr/local/bin/python3
-          rm /usr/local/bin/python3-config
-          rm /usr/local/bin/python3.13
-          rm /usr/local/bin/python3.13-config
-          rm '/usr/local/bin/idle3'
-          rm '/usr/local/bin/idle3.13'
-          arch -x86_64 /usr/local/bin/brew install llvm
-          export LDFLAGS="-L/usr/local/opt/llvm/lib"
-          export CPPFLAGS="-I/usr/local/opt/llvm/include"
+  #     - name: Setup LLVM
+  #       run: |
+  #         rm '/usr/local/bin/pydoc3'
+  #         rm /usr/local/bin/pydoc3.13
+  #         rm /usr/local/bin/python3
+  #         rm /usr/local/bin/python3-config
+  #         rm /usr/local/bin/python3.13
+  #         rm /usr/local/bin/python3.13-config
+  #         rm '/usr/local/bin/idle3'
+  #         rm '/usr/local/bin/idle3.13'
+  #         arch -x86_64 /usr/local/bin/brew install llvm
+  #         export LDFLAGS="-L/usr/local/opt/llvm/lib"
+  #         export CPPFLAGS="-I/usr/local/opt/llvm/include"
 
-      - name: Setup puredata
-        run: |
-          mkdir puredata_include
-          curl -L https://raw.githubusercontent.com/pure-data/pure-data/master/src/m_pd.h -o puredata_include/m_pd.h
+  #     - name: Setup puredata
+  #       run: |
+  #         mkdir puredata_include
+  #         curl -L https://raw.githubusercontent.com/pure-data/pure-data/master/src/m_pd.h -o puredata_include/m_pd.h
 
-      - name: Build
-        run: |
-          mkdir build
-          export CC=$(/usr/local/bin/brew --prefix llvm)/bin/clang
-          export CXX=$(/usr/local/bin/brew --prefix llvm)/bin/clang++
-          cd build
-          arch -x86_64 ../env/bin/cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
-          arch -x86_64 make
-          echo "linked libraries : "
-          otool -l ../src/externals/nn\~.mxo/Contents/MacOS/nn\~ 2> /dev/null
-      - name: Max/MSP Package creation
-        run: |
-          mkdir nn_tilde
-          mkdir nn_tilde/help
-          mv src/externals nn_tilde
-          cp src/frontend/maxmsp/nn_tilde/nn~.maxhelp nn_tilde/help
-          tar -czvf nn_max_msp_macOS_x64.tar.gz nn_tilde
-      - name: PureData Package creation
-        run: |
-          rm -fr nn_tilde
-          mv build/frontend/puredata/nn_tilde .
-          mv src/frontend/puredata/nn_tilde/nn~-help.pd nn_tilde
-          rm -fr nn_tilde/CMakeFiles/ nn_tilde/*.cmake nn_tilde/Makefile
-            tar -czvf nn_puredata_macOS_x64.tar.gz nn_tilde
-      - name: Upload binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: nn_tilde_mac_x86_64
-          path: |
-            nn_max_msp_macOS_x64.tar.gz
-            nn_puredata_macOS_x64.tar.gz
+  #     - name: Build
+  #       run: |
+  #         mkdir build
+  #         export CC=$(/usr/local/bin/brew --prefix llvm)/bin/clang
+  #         export CXX=$(/usr/local/bin/brew --prefix llvm)/bin/clang++
+  #         cd build
+  #         arch -x86_64 ../env/bin/cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=x86_64
+  #         arch -x86_64 make
+  #         echo "linked libraries : "
+  #         otool -l ../src/externals/nn\~.mxo/Contents/MacOS/nn\~ 2> /dev/null
+  #     - name: Max/MSP Package creation
+  #       run: |
+  #         mkdir nn_tilde
+  #         mkdir nn_tilde/help
+  #         mv src/externals nn_tilde
+  #         cp src/frontend/maxmsp/nn_tilde/nn~.maxhelp nn_tilde/help
+  #         tar -czvf nn_max_msp_macOS_x64.tar.gz nn_tilde
+  #     - name: PureData Package creation
+  #       run: |
+  #         rm -fr nn_tilde
+  #         mv build/frontend/puredata/nn_tilde .
+  #         mv src/frontend/puredata/nn_tilde/nn~-help.pd nn_tilde
+  #         rm -fr nn_tilde/CMakeFiles/ nn_tilde/*.cmake nn_tilde/Makefile
+  #           tar -czvf nn_puredata_macOS_x64.tar.gz nn_tilde
+  #     - name: Upload binaries
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: nn_tilde_mac_x86_64
+  #         path: |
+  #           nn_max_msp_macOS_x64.tar.gz
+  #           nn_puredata_macOS_x64.tar.gz
 
   # windows-x64-build:
   #   runs-on: windows-latest
