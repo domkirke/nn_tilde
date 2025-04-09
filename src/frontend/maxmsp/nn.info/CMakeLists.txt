@@ -55,7 +55,6 @@ set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
 set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
 include_directories(${CURL_INCLUDE_DIR})
 message("CURL: ${CURL_INCLUDE_DIR}")
-find_package(CURL REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${CURL_LIBRARY})
