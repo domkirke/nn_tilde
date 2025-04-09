@@ -10,8 +10,13 @@ class PdModelDownloader: public ModelDownloader {
     const pd_struct* d_parent; 
 
 public:
-    PdModelDownloader(const pd_struct* parent): d_parent(parent) {}
-    PdModelDownloader(const pd_struct* parent, const std::string path): d_parent(parent) { d_path = path; }
+    PdModelDownloader(const pd_struct* parent): d_parent(parent) {
+        d_cert_path = cert_path_from_path("");
+    }
+    PdModelDownloader(const pd_struct* parent, const std::string path): d_parent(parent) { 
+        d_path = path; 
+        d_cert_path = cert_path_from_path(path);
+    }
 
     void print_to_parent(const std::string &message, const std::string &canal) override {
         if (d_parent != nullptr) {
@@ -35,6 +40,7 @@ public:
         #else
             std::string perm_path = "";
         #endif
+        std::cout << "perm path : " << perm_path;
         return perm_path;
     }
 
