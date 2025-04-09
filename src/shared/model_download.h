@@ -86,6 +86,7 @@ public:
     void enqueue_download_task(DownloadTask task);
     void print_available_models();
     fs::path target_path_from_model(const std::string model_name, const std::string custom_name = "");
+    fs::path get_certificate_path() { return d_cert_path; }
     void reload();
     void worker(); 
 
@@ -312,6 +313,7 @@ void download_thread(ModelDownloader *parent, std::string model_name, std::strin
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ModelWriteCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
+            curl_easy_setopt(curl, CURLOPT_CAINFO, parent->get_certificate_path().string().c_str());
             
             // Perform the request
             res = curl_easy_perform(curl);
