@@ -1,4 +1,13 @@
 #pragma once
+
+#if (defined(WIN32) || defined(_WIN32)) && !defined(CURL_STATICLIB)
+#if defined(BUILDING_LIBCURL)
+#define CURL_EXTERN  __declspec(dllexport)
+#else
+#define CURL_EXTERN  __declspec(dllimport)
+#endif
+#endif
+
 #include <cstdio>
 #include <filesystem>
 #include <iostream>

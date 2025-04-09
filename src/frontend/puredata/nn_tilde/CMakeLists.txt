@@ -44,16 +44,22 @@ if (APPLE)
         LINK_FLAGS "-Wl,-rpath,@loader_path/"
     )
 
-    if (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
-        add_custom_command(
-            TARGET nn
-            POST_BUILD
-            COMMAND "codesign" "--force" "--deep" "-s" "-" "${CMAKE_CURRENT_BINARY_DIR}/*.dylib"
-            COMMAND "codesign" "--force" "--deep" "-s" "-" "${CMAKE_CURRENT_BINARY_DIR}/*.pd_darwin"
-            COMMAND "xattr" "-r" "-d" "com.apple.quarantine" "${CMAKE_CURRENT_BINARY_DIR}"
-            COMMENT "Codesign external"
-        )
-    endif()
+    add_custom_command(
+        TARGET nn
+        POST_BUILD 
+        COMMAND ${CMAKE_SOURCE_DIR}/../env/bin/python ${CMAKE_SOURCE_DIR}/../install/dylib_fix.py -p "${CMAKE_CURRENT_BINARY_DIR}/*.pd_darwin" -l "${CMAKE_BINARY_DIR}/_deps"  "${CMAKE_SOURCE_DIR}/../env" 
+        COMMENT "Fixing libraries and codesigning"
+    )
+
+    # if (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+    #     add_custom_command(
+    #         TARGET nn
+    #         POST_BUILD
+    #         COMMAND "codesign" "--force" "--deep" "-s" "-" "${CMAKE_CURRENT_BINARY_DIR}/*.dylib"
+    #         COMMAND "codesign" "--force" "--deep" "-s" "-" "${CMAKE_CURRENT_BINARY_DIR}/*.pd_darwin"
+    #         COMMAND "xattr" "-r" "-d" "com.apple.quarantine" "${CMAKE_CURRENT_BINARY_DIR}"
+    #         COMMENT "Codesign external"
+    #     )
 endif()
 
 if (UNIX AND NOT APPLE)
@@ -179,7 +185,16 @@ endif()
 
 target_include_directories(nn PRIVATE "${PUREDATA_INCLUDE_DIR}")
 target_link_libraries(nn PRIVATE backend)
-target_link_libraries(nn PRIVATE CURL::libcurl)
+
+
+set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
+set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
+set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
+include_directories(${CURL_INCLUDE_DIR})
+message("CURL: ${CURL_INCLUDE_DIR}")
+find_package(CURL REQUIRED)
+target_link_libraries(nn PRIVATE ${CURL_LIBRARY})
+
 target_link_libraries(nn PRIVATE nlohmann_json::nlohmann_json)
 target_compile_definitions(nn PRIVATE DOWNLOADED_MODELS_PATH="${MODELS_PATH_LOCATION}")
 if (MSVC)
