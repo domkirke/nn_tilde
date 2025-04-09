@@ -63,12 +63,12 @@ add_subdirectory(backend) # DEEP LEARNING BACKEND
 
 
 if ((NOT ("${PUREDATA_INCLUDE_DIR}" STREQUAL "")) OR (UNIX AND NOT APPLE))
-    add_subdirectory(frontend/puredata/nn_tilde) # PURE DATA EXTERNAL
+    # add_subdirectory(frontend/puredata/nn_tilde) # PURE DATA EXTERNAL
 endif()
 
 if(APPLE OR MSVC)
     add_subdirectory(frontend/maxmsp/nn.info) # MAX MSP EXTERNAL
-    add_subdirectory(frontend/maxmsp/nn_tilde) # MAX MSP EXTERNAL
-    add_subdirectory(frontend/maxmsp/mc.nn_tilde) # MAX MSP EXTERNAL
-    add_subdirectory(frontend/maxmsp/mcs.nn_tilde) # MAX MSP EXTERNAL
+    # add_subdirectory(frontend/maxmsp/nn_tilde) # MAX MSP EXTERNAL
+    # add_subdirectory(frontend/maxmsp/mc.nn_tilde) # MAX MSP EXTERNAL
+    # add_subdirectory(frontend/maxmsp/mcs.nn_tilde) # MAX MSP EXTERNAL
 endif()

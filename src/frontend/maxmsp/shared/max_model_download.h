@@ -33,6 +33,18 @@ public:
 
     void fill_dict(void* dict_to_fill);
     void print_to_parent(const std::string &message, const std::string &canal);
+    fs::path cert_path_from_path(fs::path path) {
+        #if defined(_WIN32) || defined(_WIN64)
+            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+        #elif defined(__APPLE__) || defined(__MACH__)
+            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+        #elif defined(__linux__)
+            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+        #else
+            std::string perm_path = "";
+        #endif
+        return perm_path;
+    }
 
 };
 
@@ -41,6 +53,7 @@ MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj): d_parent(obj
     // d_path = d_path / ".." / "nn_tilde" / "models";
     min::path path = min::path("nn~", min::path::filetype::external); 
     if (path) {
+        d_cert_path = cert_path_from_path(fs::path(path));
         d_path = fs::absolute(fs::path(path) / "..");
     }
 }
@@ -48,6 +61,7 @@ MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj): d_parent(obj
 MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj, std::string external_name): d_parent(obj) {
     min::path path = min::path(external_name, min::path::filetype::external);
     if (path) {
+        d_cert_path = cert_path_from_path(fs::path(path));
         d_path = fs::absolute(fs::path(path) / "..");
     }
 }

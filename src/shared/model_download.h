@@ -16,6 +16,17 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 using DownloadTask = std::function<void()>;
 
+// Define platform-dependent macro function
+#if defined(_WIN32) || defined(_WIN64)
+    #define GET_CERT_PATH(d_path) ""
+#elif defined(__APPLE__) || defined(__MACH__)
+    #define GET_CERT_PATH(d_path) d_path / "Contents" / "MacOS" / "cert.pem"
+#elif defined(__linux__)
+    #define GET_CERT_PATH() ""
+#else
+    #define GET_CERT_PATH() ""
+#endif
+
 
 // Callback function for handling the downloaded data
 size_t JSONWriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
@@ -42,13 +53,13 @@ bool is_file_empty(const fs::path filePath) {
 class ModelDownloader {
 
 protected:
-    fs::path d_path;
+    fs::path d_path, d_cert_path;
     bool _is_ready = false;
     static bool create_path(const fs::path& path);
     // api root
     std::string _api_root;
     // available models callbacks
-    static std::string get_string_from_api_callback(std::string &adress);
+    std::string get_string_from_api_callback(std::string &adress);
     json d_available_models;
     // downloading attributes
     std::vector<std::thread> d_threads;
@@ -80,6 +91,7 @@ public:
 
     virtual void fill_dict(void* dict_to_fill) = 0;
     virtual void print_to_parent(const std::string &message, const std::string &canal) = 0;
+    virtual fs::path cert_path_from_path(fs::path path) = 0;
 
     std::string string_id() {
         std::stringstream str_id; 
@@ -88,7 +100,7 @@ public:
     }
 };
 
-ModelDownloader::ModelDownloader(fs::path download_location): d_path(download_location) {}
+ModelDownloader::ModelDownloader(fs::path download_location): d_path(download_location / "..") {}
 
 ModelDownloader::~ModelDownloader() {
     {
@@ -139,10 +151,12 @@ std::string ModelDownloader::get_string_from_api_callback(std::string &address) 
 
     curl = curl_easy_init();
 
+    std::cout << "perm path : " << d_cert_path << std::endl;
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, JSONWriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_setopt(curl, CURLOPT_CAINFO, d_cert_path.string().c_str());
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             throw std::string("could not fetch available models from API. Code from API: ") + std::to_string(res);

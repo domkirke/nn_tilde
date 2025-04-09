@@ -4,9 +4,6 @@ on:
     tags:
       - "v*"
 
-
-
-
 jobs:
   osx-arm64-build:
     runs-on: macos-latest
@@ -31,6 +28,7 @@ jobs:
           conda install -c conda-forge curl
       - name: Set CURL_CA_BUNDLE
         run: | 
+        
           export CURL_CA_BUNDLE=../env/ssl/cacert.pem  
       - name: Setup puredata
         run: |
