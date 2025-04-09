@@ -10,6 +10,7 @@ else()
   set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${CONDA_ENV_PATH}")
 endif()
 
+
 if (APPLE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
 endif()
