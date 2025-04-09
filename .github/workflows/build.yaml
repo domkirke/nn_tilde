@@ -19,7 +19,7 @@ jobs:
           GIT_TRACE=1 git describe --tags --always
       - name: Setup LLVM
         run: |
-          brew install llvm
+          brew install llvm ca-certificates
       - name: Setup miniconda
         run: |
           curl -L https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh > miniconda.sh
@@ -205,10 +205,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nn_tilde_mac_arm64
-      - name: Download build binaries (mac_x86_64)
-        uses: actions/download-artifact@v4
-        with:
-          name: nn_tilde_mac_x86_64
+      # - name: Download build binaries (mac_x86_64)
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: nn_tilde_mac_x86_64
       - name: Automated Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
