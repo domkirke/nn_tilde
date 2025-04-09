@@ -37,7 +37,7 @@ public:
         #if defined(_WIN32) || defined(_WIN64)
             std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
         #elif defined(__APPLE__) || defined(__MACH__)
-            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+            std::string perm_path = "/etc/ssl/cert.pem";
         #elif defined(__linux__)
             std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
         #else
