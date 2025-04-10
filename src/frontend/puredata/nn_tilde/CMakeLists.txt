@@ -95,8 +95,10 @@ if (UNIX AND NOT APPLE)
     add_custom_target(copy_torch_libs)
     foreach(LIB_PATTR ${TORCH_ESSENTIAL_LIBS})
     file(GLOB CURRENT_PATHS "${CMAKE_SOURCE_DIR}/../env/lib/python3.12/site-packages/torch/lib/${LIB_PATTR}")
-    list(GET CURRENT_PATHS 0 LIB)
-    get_filename_component(LIB_NAME ${LIB} NAME)
+    list(LENGTH CURRENT_PATHS N_PATHS)
+    if (NOT ${N_PATHS} EQUAL 0)
+        list(GET CURRENT_PATHS 0 LIB)
+        get_filename_component(LIB_NAME ${LIB} NAME)
         add_custom_command(
             TARGET copy_torch_libs
             PRE_BUILD
@@ -105,23 +107,30 @@ if (UNIX AND NOT APPLE)
                 "${CMAKE_CURRENT_BINARY_DIR}/$(basename ${LIB})"
             COMMENT "Copying ${LIB_NAME}"
         )
+    else() 
+        message("${LIB_PATTR} not found")
+    endif()
     endforeach()
 
     # Copy essential curl libs
     foreach(LIB_PATTR ${CURL_ESSENTIAL_LIBS})
         file(GLOB CURRENT_PATHS "${CMAKE_SOURCE_DIR}/../env/lib/${LIB_PATTR}")
-        list(GET CURRENT_PATHS 0 LIB)
-        resolve_symlink("${LIB}" original_path)
-        message("original path : ${original_path}")
-        get_filename_component(LIB_NAME ${original_path} NAME)
-        add_custom_command(
-            TARGET copy_torch_libs
-            PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${original_path}"
-                "${CMAKE_CURRENT_BINARY_DIR}/${LIB}"
-            COMMENT "Copying ${LIB_NAME}"
-        )
+        list(LENGTH CURRENT_PATHS N_PATHS)
+        if (NOT ${N_PATHS} EQUAL 0)
+            list(GET CURRENT_PATHS 0 LIB)
+            resolve_symlink("${LIB}" original_path)
+            get_filename_component(LIB_NAME ${original_path} NAME)
+            add_custom_command(
+                TARGET copy_torch_libs
+                PRE_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${original_path}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/${LIB}"
+                COMMENT "Copying ${LIB_NAME}"
+            )
+        else() 
+            message("${LIB_PATTR} not found")
+        endif()
     endforeach()
 
     add_dependencies(nn copy_torch_libs)
