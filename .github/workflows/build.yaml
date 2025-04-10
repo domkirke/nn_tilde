@@ -204,9 +204,9 @@ jobs:
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ workspace.artefact_name }}
+          name: ${{ github.workspace.artefact_name }}
           path: 
-            ${{ workspace.artefact_name }}.tar.gz
+            ${{ github.workspace.artefact_name }}.tar.gz
 
   # windows-x64-build:
   #   runs-on: windows-latest
