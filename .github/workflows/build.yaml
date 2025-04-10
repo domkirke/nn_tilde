@@ -163,6 +163,10 @@ jobs:
             conda-url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh
             artefact-name: nn_linux_puredata_arm64
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.arch }}
       - name: Check out code
         uses: actions/checkout@v2
       - run: | 
