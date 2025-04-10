@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 project(nn_tilde_pd)
 find_package(Torch REQUIRED)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 file(GLOB SRC *.cpp)
 
 add_library(nn SHARED ${SRC})
@@ -51,37 +55,68 @@ if (APPLE)
         COMMENT "Fixing libraries and codesigning"
     )
 
-    # if (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
-    #     add_custom_command(
-    #         TARGET nn
-    #         POST_BUILD
-    #         COMMAND "codesign" "--force" "--deep" "-s" "-" "${CMAKE_CURRENT_BINARY_DIR}/*.dylib"
-    #         COMMAND "codesign" "--force" "--deep" "-s" "-" "${CMAKE_CURRENT_BINARY_DIR}/*.pd_darwin"
-    #         COMMAND "xattr" "-r" "-d" "com.apple.quarantine" "${CMAKE_CURRENT_BINARY_DIR}"
-    #         COMMENT "Codesign external"
-    #     )
 endif()
 
+
+function(resolve_symlink symlink_path resolved_path)
+    execute_process(
+        COMMAND readlink -f ${symlink_path}
+        OUTPUT_VARIABLE resolved
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(${resolved_path} ${resolved} PARENT_SCOPE)
+endfunction()
+
+
 if (UNIX AND NOT APPLE)
-    set(ESSENTIAL_LIBS
+    set(TORCH_ESSENTIAL_LIBS
         "libtorch.so"
         "libtorch_cpu.so"
         "libc10.so"
+        "libgomp-a34b3233.so.1"
         "libtorch_global_deps.so"
+    )
+    set(CURL_ESSENTIAL_LIBS
+        "libnghttp2.so.14"
+        "libssh2.so.1"
+        "libssl.so.3" 
+        "libkrb5.so.3"
+        "libk5crypto.so.3"
+        "libkrb5support.so.0"
+        "libcrypto.so.3" 
+        "libgssapi_krb5.so.2" 
+        "libzstd.so.1"
+        "libcom_err.so.3"
+        "libz.so.1"
+        "libcurl.so.4"
     )
 
     # Copy essential Torch libraries
     add_custom_target(copy_torch_libs)
-    foreach(LIB ${ESSENTIAL_LIBS})
+    foreach(LIB ${TORCH_ESSENTIAL_LIBS})
         add_custom_command(
             TARGET copy_torch_libs
             PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${TORCH_INSTALL_PREFIX}/lib/${LIB}"
+                "${CMAKE_SOURCE_DIR}/../env/lib/python3.12/site-packages/torch/lib/${LIB}"
+                "${CMAKE_CURRENT_BINARY_DIR}/$(basename ${LIB})"
+            COMMENT "Copying ${LIB}"
+        )
+    endforeach()
+
+    # Copy essential curl libs
+    foreach(LIB ${CURL_ESSENTIAL_LIBS})
+        resolve_symlink("${CMAKE_SOURCE_DIR}/../env/lib/${LIB}" original_path)
+        add_custom_command(
+            TARGET copy_torch_libs
+            PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${original_path}"
                 "${CMAKE_CURRENT_BINARY_DIR}/${LIB}"
             COMMENT "Copying ${LIB}"
         )
     endforeach()
+
     add_dependencies(nn copy_torch_libs)
 
     set_target_properties(nn PROPERTIES 
@@ -188,10 +223,16 @@ target_link_libraries(nn PRIVATE backend)
 
 set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
 set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
-set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
+
+if (UNIX)
+    if (APPLE)
+        set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
+    else()
+        set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.so")
+    endif()
+endif()
+
 include_directories(${CURL_INCLUDE_DIR})
-message("CURL: ${CURL_INCLUDE_DIR}")
-# find_package(CURL REQUIRED)
 target_link_libraries(nn PRIVATE ${CURL_LIBRARY})
 
 target_link_libraries(nn PRIVATE nlohmann_json::nlohmann_json)

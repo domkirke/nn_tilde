@@ -36,7 +36,7 @@ public:
         #elif defined(__APPLE__) || defined(__MACH__)
             std::string perm_path = "/etc/ssl/cert.pem";
         #elif defined(__linux__)
-            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+            std::string perm_path = "/etc/ssl/certs/ca-certificates.crt";
         #else
             std::string perm_path = "";
         #endif

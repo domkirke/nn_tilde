@@ -16,17 +16,6 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 using DownloadTask = std::function<void()>;
 
-// Define platform-dependent macro function
-#if defined(_WIN32) || defined(_WIN64)
-    #define GET_CERT_PATH(d_path) ""
-#elif defined(__APPLE__) || defined(__MACH__)
-    #define GET_CERT_PATH(d_path) d_path / "Contents" / "MacOS" / "cert.pem"
-#elif defined(__linux__)
-    #define GET_CERT_PATH() ""
-#else
-    #define GET_CERT_PATH() ""
-#endif
-
 
 // Callback function for handling the downloaded data
 size_t JSONWriteCallback(void* contents, size_t size, size_t nmemb, std::string* userp) {
@@ -77,6 +66,7 @@ public:
     int init_downloader(bool force_refresh = false);
     void init_threads();
     bool is_ready();
+    bool has_valid_certificate();
     bool has_model(const std::string &model_card);
     std::string get_api_root();
     bool update_available_models(); 
@@ -120,9 +110,30 @@ void ModelDownloader::init_threads() {
     }
 }
 
+bool ModelDownloader::has_valid_certificate() {
+    if (d_cert_path == "") {
+        return false;
+    } else if (!fs::exists(d_cert_path)) {
+        #if defined(_WIN32) || defined(_WIN64)
+            std::string error_message = "Could not find certificate"
+        #elif defined(__APPLE__) || defined(__MACH__)
+            std::string error_message = "Could not find certificate in external bundle"
+        #elif defined(__linux__)
+            std::string error_message = "Could not find certificate at " + d_cert_path.string() + "; did you install ca-certificates?";
+        #else
+            std::string error_message = "Could not find certificate";
+        #endif
+        
+        print_to_parent(error_message, "cwarn");
+        return false;
+    }
+    return true;
+}
+
 int ModelDownloader::init_downloader(bool force_refresh) {
     curl_global_init(CURL_GLOBAL_DEFAULT);
     bool is_path_ok = create_path(d_path);
+    bool is_certificate_ok = has_valid_certificate(); 
     bool is_model_list_available = update_available_models();
     init_threads();
     _is_ready = (is_path_ok && is_model_list_available);
