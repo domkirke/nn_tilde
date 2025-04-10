@@ -33,8 +33,6 @@ FetchContent_MakeAvailable(json)
 
 if (UNIX)
   if (APPLE)
-  
-
   add_compile_options(-std=c++20)
     set(CMAKE_CXX_FLAGS "-faligned-allocation")
     if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
