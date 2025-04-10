@@ -175,7 +175,7 @@ jobs:
 
       - name: Setup miniconda
         run: |
-          curl -L {{ matrix.conda-url }} > miniconda.sh
+          curl -L ${{ matrix.conda-url }} > miniconda.sh
           chmod +x ./miniconda.sh
           bash ./miniconda.sh -b -u -p ./env
           source ./env/bin/activate
