@@ -70,50 +70,57 @@ endfunction()
 
 if (UNIX AND NOT APPLE)
     set(TORCH_ESSENTIAL_LIBS
-        "libtorch.so"
-        "libtorch_cpu.so"
-        "libc10.so"
-        "libgomp-a34b3233.so.1"
-        "libtorch_global_deps.so"
+        "libtorch.so*"
+        "libtorch_cpu.so*"
+        "libc10.so*"
+        "libgomp*so*"
+        "libtorch_global_deps.so*"
     )
     set(CURL_ESSENTIAL_LIBS
-        "libnghttp2.so.14"
-        "libssh2.so.1"
-        "libssl.so.3" 
-        "libkrb5.so.3"
-        "libk5crypto.so.3"
-        "libkrb5support.so.0"
-        "libcrypto.so.3" 
-        "libgssapi_krb5.so.2" 
-        "libzstd.so.1"
-        "libcom_err.so.3"
-        "libz.so.1"
-        "libcurl.so.4"
+        "libnghttp2.so*"
+        "libssh2.so*"
+        "libssl.so*" 
+        "libkrb5.so*"
+        "libk5crypto.so*"
+        "libkrb5support.so*"
+        "libcrypto.so*" 
+        "libgssapi_krb5.so*" 
+        "libzstd.so*"
+        "libcom_err.so*"
+        "libz.so*"
+        "libcurl.so*"
     )
 
     # Copy essential Torch libraries
     add_custom_target(copy_torch_libs)
-    foreach(LIB ${TORCH_ESSENTIAL_LIBS})
+    foreach(LIB_PATTR ${TORCH_ESSENTIAL_LIBS})
+    file(GLOB CURRENT_PATHS "${CMAKE_SOURCE_DIR}/../env/lib/python3.12/site-packages/torch/lib/${LIB_PATTR}")
+    list(GET CURRENT_PATHS 0 LIB)
+    get_filename_component(LIB_NAME ${LIB} NAME)
         add_custom_command(
             TARGET copy_torch_libs
             PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${CMAKE_SOURCE_DIR}/../env/lib/python3.12/site-packages/torch/lib/${LIB}"
+                "${LIB}"
                 "${CMAKE_CURRENT_BINARY_DIR}/$(basename ${LIB})"
-            COMMENT "Copying ${LIB}"
+            COMMENT "Copying ${LIB_NAME}"
         )
     endforeach()
 
     # Copy essential curl libs
-    foreach(LIB ${CURL_ESSENTIAL_LIBS})
-        resolve_symlink("${CMAKE_SOURCE_DIR}/../env/lib/${LIB}" original_path)
+    foreach(LIB_PATTR ${CURL_ESSENTIAL_LIBS})
+        file(GLOB CURRENT_PATHS "${CMAKE_SOURCE_DIR}/../env/lib/${LIB_PATTR}")
+        list(GET CURRENT_PATHS 0 LIB)
+        resolve_symlink("${LIB}" original_path)
+        message("original path : ${original_path}")
+        get_filename_component(LIB_NAME ${original_path} NAME)
         add_custom_command(
             TARGET copy_torch_libs
             PRE_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${original_path}"
                 "${CMAKE_CURRENT_BINARY_DIR}/${LIB}"
-            COMMENT "Copying ${LIB}"
+            COMMENT "Copying ${LIB_NAME}"
         )
     endforeach()
 
