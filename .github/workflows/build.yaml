@@ -201,7 +201,7 @@ jobs:
           mv build/frontend/puredata/nn_tilde .
           mv src/frontend/puredata/nn_tilde/nn~-help.pd nn_tilde
           rm -fr nn_tilde/CMakeFiles/ nn_tilde/*.cmake nn_tilde/Makefile
-          tar -czvf nn_puredata_macOS_arm64.tar.gz nn_tilde
+          tar -czvf ${{ github.workspace.artefact_name }}.tar.gz nn_tilde
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
