@@ -155,11 +155,11 @@ jobs:
         arch: [amd64, arm64]
         include:
           - arch: amd64
-            run-on: ubuntu-latest
+            runs-on: ubuntu-latest
             artefact-name: nn_linux_puredata_x86_64
             conda-url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
           - arch: arm64
-            run-on: ubuntu-22.04 # or the appropriate ARM version
+            runs-on: ubuntu-22.04 # or the appropriate ARM version
             conda-url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh
             artefact-name: nn_linux_puredata_arm64
     steps:
