@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(nn_tilde_pd)
-find_package(Torch REQUIRED)
+#find_package(Torch REQUIRED)
 
 file(GLOB SRC *.cpp)
 

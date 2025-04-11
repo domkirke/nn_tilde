@@ -262,7 +262,7 @@ std::string lock_path_from_target(std::string target_path, std::string model_nam
         lock_name << p << '_' ; 
     }
     lock_name << "lock";
-    std::string lock_path = fs::absolute(target_path_fs.parent_path() / lock_name.str()); 
+    std::string lock_path = fs::absolute(target_path_fs.parent_path() / lock_name.str()).string(); 
     return lock_path;
 }
 
@@ -363,18 +363,18 @@ void ModelDownloader::download(const std::string &model_name, const std::string 
         throw std::string("model name " + model_name + " not available.");
     }
     auto target_path = target_path_from_model(model_name, custom_name);
-    if (fs::exists(target_path)) {
+    if (std::filesystem::exists(target_path)) {
         if (!is_file_empty(target_path)) {
             print_to_parent("model " + target_path.string() + " seems to be already downloaded.", "cwarn");
             return;
         } else {
-            fs::remove(target_path);
+            std::filesystem::remove(target_path);
         }
     }
-    if (fs::exists(lock_path_from_target(target_path, model_name))) {
+    if (std::filesystem::exists(lock_path_from_target(target_path.string(), model_name))) {
         print_to_parent("model " + model_name + " is already downloading.", "cwarn");
         return; 
     }
     int download_id = d_threads.size();
-    enqueue_download_task([this, model_name, target_path, download_id]() { download_thread(this, model_name, target_path, download_id); });
+    enqueue_download_task([this, model_name, target_path, download_id]() { download_thread(this, model_name, target_path.string(), download_id); });
 }

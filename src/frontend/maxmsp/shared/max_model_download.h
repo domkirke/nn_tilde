@@ -35,19 +35,26 @@ public:
 
 };
 
+std::filesystem::path fs_from_min(c74::min::path path) {
+    std::string path_str = path;
+    std::filesystem::path path_fs = path_str;
+    return path_fs;
+}
 
 MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj): d_parent(obj) {
     // d_path = d_path / ".." / "nn_tilde" / "models";
     min::path path = min::path("nn~", min::path::filetype::external); 
     if (path) {
-        d_path = fs::absolute(fs::path(path) / "..");
+        d_path = std::filesystem::absolute(fs_from_min(path) / "..");
     }
 }
 
 MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj, std::string external_name): d_parent(obj) {
     min::path path = min::path(external_name, min::path::filetype::external);
+    std::string path_str = path;
+    fs::path fs_path(path_str);
     if (path) {
-        d_path = fs::absolute(fs::path(path) / "..");
+        d_path = fs::absolute(fs_path / "..");
     }
 }
 

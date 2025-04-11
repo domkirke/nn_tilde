@@ -46,7 +46,15 @@ add_library(
 	${SOURCE_FILES}
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
+
+if (MSVC)
+target_link_libraries(${PROJECT_NAME} PRIVATE libcurl)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+else()
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 

@@ -10,6 +10,7 @@ if (APPLE)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
 endif()
 
+
 #############################################################
 # MAX EXTERNAL
 #############################################################
@@ -20,7 +21,13 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/../shared",
 	"${CMAKE_CURRENT_SOURCE_DIR}/../../shared",
 )
-find_package(Torch REQUIRED)
+
+
+if (MSVC)
+	include_directories(${VCPKG_INCLUDE_DIR})
+	link_directories(${VCPKG_LIB_DIR})
+endif()
+
 
 set(
 SOURCE_FILES
@@ -43,11 +50,17 @@ add_library(
 	MODULE
 	${SOURCE_FILES}
 )
+
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
-target_link_libraries(${PROJECT_NAME} PRIVATE backend)
+
+
+if (MSVC)
+target_link_libraries(${PROJECT_NAME} PRIVATE libcurl)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+else()
 target_link_libraries(${PROJECT_NAME} PRIVATE CURL::libcurl)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
-
+endif()
 
 
 if (APPLE) # SEARCH FOR TORCH DYLIB IN THE LOADER FOLDER
@@ -77,12 +90,8 @@ if (CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
 endif()
 endif()
 
-if (MSVC) # COPY TORCH DLL IN THE LOADER FOLDER
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${TORCH_INSTALL_PREFIX}/lib/" ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/
-)
-endif()
 
 if (MSVC)
 	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 endif()
+
