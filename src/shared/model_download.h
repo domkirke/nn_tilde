@@ -162,8 +162,6 @@ std::string ModelDownloader::get_string_from_api_callback(std::string &address) 
     std::string readBuffer; 
 
     curl = curl_easy_init();
-
-    std::cout << "perm path : " << d_cert_path << std::endl;
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, address.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, JSONWriteCallback);

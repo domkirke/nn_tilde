@@ -40,7 +40,6 @@ public:
         #else
             std::string perm_path = "";
         #endif
-        std::cout << "perm path : " << perm_path;
         return perm_path;
     }
 
