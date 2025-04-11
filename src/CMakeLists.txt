@@ -3,53 +3,48 @@ project(nn_tilde)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
+if (MSVC)
+  set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}:${CONDA_ENV_PATH}")
+else()
+  set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${CONDA_ENV_PATH}")
+endif()
+
+
+if (APPLE)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(SET CMP0076 NEW)
+set(SET CMP00076)
 
 include(FetchContent)
+
+# import json
 FetchContent_Declare(
   json
   GIT_REPOSITORY https://github.com/nlohmann/json.git
   GIT_TAG v3.11.2  # Specify the version you want to use
+  CMAKE_ARGS "-DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}"  "DCMAKE_OSX_DEPLOYMENT_TARGET=10.13"
 )
 FetchContent_MakeAvailable(json)
 
 
 if (UNIX)
-# import json
-FetchContent_Declare(
-  curl
-  URL https://github.com/curl/curl/releases/download/curl-7_79_1/curl-7.79.1.tar.gz
-)
-FetchContent_MakeAvailable(curl)
-endif()
-
-if(MSVC)
-  file(GLOB_RECURSE VCPKG_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/../vcpkg/installed/*windows/include")
-  file(GLOB_RECURSE VCPKG_LIB_DIR "${CMAKE_SOURCE_DIR}/../vcpkg/installed/*windows/lib")
-  
-endif()
-
-find_package(Torch REQUIRED)
-
-
-if (APPLE)
+  if (APPLE)
+  add_compile_options(-std=c++20)
     set(CMAKE_CXX_FLAGS "-faligned-allocation")
     if (CMAKE_OSX_ARCHITECTURES STREQUAL "")
         set(CMAKE_OSX_ARCHITECTURES ${CMAKE_HOST_SYSTEM_PROCESSOR})
     endif()
     message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum OS X deployment version")
-    add_compile_options(-std=c++20)
+  endif()
 endif()
 
 
-# manage CURL dependency
-# file(GLOB CURL_DYLIB_PATH "../env/lib/libcurl*.dylib")
-# file(GLOB CURL_INCLUDE_DIR "../env/pkgs/libcurl*/include/curl")
+find_package(Torch REQUIRED)
 add_subdirectory(backend) # DEEP LEARNING BACKEND
-
 
 if ((NOT ("${PUREDATA_INCLUDE_DIR}" STREQUAL "")) OR (UNIX AND NOT APPLE))
     #add_subdirectory(frontend/puredata/nn_tilde) # PURE DATA EXTERNAL

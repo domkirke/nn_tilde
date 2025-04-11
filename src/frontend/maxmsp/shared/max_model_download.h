@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdio>
 #include <filesystem>
 #include <iostream>
@@ -32,20 +33,25 @@ public:
 
     void fill_dict(void* dict_to_fill);
     void print_to_parent(const std::string &message, const std::string &canal);
-
+    fs::path cert_path_from_path(fs::path path) {
+        #if defined(_WIN32) || defined(_WIN64)
+            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+        #elif defined(__APPLE__) || defined(__MACH__)
+            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+        #else
+            std::string perm_path = "path" / "..";
+        #endif
+        return perm_path;
+    }
 };
 
-std::filesystem::path fs_from_min(c74::min::path path) {
-    std::string path_str = path;
-    std::filesystem::path path_fs = path_str;
-    return path_fs;
-}
 
 MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj): d_parent(obj) {
     // d_path = d_path / ".." / "nn_tilde" / "models";
     min::path path = min::path("nn~", min::path::filetype::external); 
     if (path) {
-        d_path = std::filesystem::absolute(fs_from_min(path) / "..");
+        d_cert_path = cert_path_from_path(fs::path(path));
+        d_path = fs::absolute(fs::path(path) / "..");
     }
 }
 
@@ -54,7 +60,8 @@ MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj, std::string e
     std::string path_str = path;
     fs::path fs_path(path_str);
     if (path) {
-        d_path = fs::absolute(fs_path / "..");
+        d_cert_path = cert_path_from_path(fs::path(path));
+        d_path = fs::absolute(fs::path(path) / "..");
     }
 }
 
