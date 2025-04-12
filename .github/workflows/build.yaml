@@ -280,9 +280,9 @@ jobs:
           mv src/externals nn_tilde
           cp src/frontend/maxmsp/nn_tilde/nn~.maxhelp nn_tilde/help
           mkdir nn_tilde/support
-          cp libtorch/lib/* ../src/support
-          cp vcpkg/installed/x64-windows/lib/*.lib ../src/support
-          cp vcpkg/installed/x64-windows/bin/*.dll ../src/support
+          cp libtorch/lib/* nn_tilde/support
+          cp vcpkg/installed/x64-windows/lib/*.lib nn_tilde/support
+          cp vcpkg/installed/x64-windows/bin/*.dll nn_tilde/support
           tar -czvf nn_max_msp_windows_x64.tar.gz nn_tilde
       - name: PureData Package creation
         run: |
