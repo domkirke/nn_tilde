@@ -32,7 +32,17 @@ public:
 
     fs::path cert_path_from_path(fs::path path) {
         #if defined(_WIN32) || defined(_WIN64)
-            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+            const char* homeDir = std::getenv("USERPROFILE");
+            fs::path perm_path = fs::path(homeDir) / "Documents" / "Pd" / "externals" / "nn_tilde" / "cacert.pem";
+            if (fs::exists(perm_path)) {
+                return perm_path;
+            }
+            perm_path = "C:\\Program Files\\Pd\\extra\\cacert.pem";
+            if (fs::exists(perm_path)) {
+                return perm_path;
+            }
+            perm_path = path / ".." / "cacert.pem";
+            return perm_path;
         #elif defined(__APPLE__) || defined(__MACH__)
             std::string perm_path = "/etc/ssl/cert.pem";
         #elif defined(__linux__)
