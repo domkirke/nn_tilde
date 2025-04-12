@@ -52,6 +52,14 @@ add_library(
 )
 
 
+if (MSVC)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+	target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+	set(CMAKE_CXX_STANDARD 20)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
 # include_directories(${LIBCURL_INCLUDE_DIR})
 # add_dependencies(${PROJECT_NAME} libcurl)

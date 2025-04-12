@@ -3,8 +3,11 @@
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../min-api)
-include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
 
 if (APPLE)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
@@ -15,6 +18,14 @@ endif()
 # MAX EXTERNAL
 #############################################################
 
+set(
+SOURCE_FILES
+	nn_tilde.cpp
+)
+
+
+
+include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
 
 include_directories( 
 	"${C74_INCLUDES}", 
@@ -24,14 +35,23 @@ include_directories(
 	# "${CURL_INCLUDE_LOCATION}"
 )
 
+
+add_library( 
+	${PROJECT_NAME} 
+	MODULE
+	${SOURCE_FILES}
+)
+
+
+if (MSVC)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+	target_compile_features(${PROJECT_NAME} PUBLIC "cxx_std_20")
+
+endif()
+
 find_package(Torch REQUIRED)
 
 # find_package(CURL REQUIRED HINTS ${CURL_LOCATION} PATHS ${CURL_LOCATION})
-
-set(
-SOURCE_FILES
-	nn_tilde.cpp
-)
 
 if (UNIX)
 	execute_process(
@@ -44,12 +64,10 @@ if (UNIX)
 	add_definitions(-DVERSION="${VERSION}")
 endif()
 
-add_library( 
-	${PROJECT_NAME} 
-	MODULE
-	${SOURCE_FILES}
-)
+
+
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
+
 
 
 set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
@@ -81,14 +99,4 @@ if (APPLE) # COPY DYLIBS IN THE LOADER FOLDER
 		COMMAND ${CMAKE_SOURCE_DIR}/../env/bin/python ${CMAKE_SOURCE_DIR}/../install/dylib_fix.py -p "$<TARGET_FILE:${PROJECT_NAME}>" -l "${CMAKE_BINARY_DIR}/_deps"  "${CMAKE_SOURCE_DIR}/../env" "${HOMEBREW_PREFIX}"
 		COMMENT "Fixing libraries, certificates, permissions, codesigning, quarantine"
 	)
-endif()
-
-if (MSVC) # COPY TORCH DLL IN THE LOADER FOLDER
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${TORCH_INSTALL_PREFIX}/lib/" ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/
-)
-endif()
-
-if (MSVC)
-	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 endif()

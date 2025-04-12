@@ -46,6 +46,12 @@ endif()
 find_package(Torch REQUIRED)
 add_subdirectory(backend) # DEEP LEARNING BACKEND
 
+if (MSVC)
+	set(CMAKE_CXX_STANDARD 20)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+
 if ((NOT ("${PUREDATA_INCLUDE_DIR}" STREQUAL "")) OR (UNIX AND NOT APPLE))
     add_subdirectory(frontend/puredata/nn_tilde) # PURE DATA EXTERNAL
 endif()

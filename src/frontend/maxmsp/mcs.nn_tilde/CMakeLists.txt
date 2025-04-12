@@ -10,16 +10,18 @@ if (APPLE)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
 endif()
 
+
 #############################################################
 # MAX EXTERNAL
-#############################################################
+##########################################################
+###
 
 
 include_directories( 
-	"${C74_INCLUDES}",
-	"${CMAKE_CURRENT_SOURCE_DIR}/../shared",
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../shared",
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../../shared",
+	"${C74_INCLUDES}"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../shared"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../shared"
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../../shared"
 )
 find_package(Torch REQUIRED)
 
@@ -27,6 +29,7 @@ set(
 SOURCE_FILES
 	mcs.nn_tilde.cpp
 )
+
 
 if (UNIX)
 	execute_process(
@@ -44,6 +47,16 @@ add_library(
 	MODULE
 	${SOURCE_FILES}
 )
+
+
+if (MSVC)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+	target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+	set(CMAKE_CXX_STANDARD 20)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
+
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
 
 
@@ -79,7 +92,3 @@ if (APPLE) # COPY DYLIBS IN THE LOADER FOLDER
 	)
 endif()
 
-
-if (MSVC)
-	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
-endif()

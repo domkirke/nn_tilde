@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../min-api)
 include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
 
+
 if (APPLE)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
 endif()
@@ -29,6 +30,8 @@ SOURCE_FILES
 	mc.nn_tilde.cpp
 )
 
+
+
 if (UNIX)
 	execute_process(
 			COMMAND git describe --tags
@@ -45,6 +48,15 @@ add_library(
 	MODULE
 	${SOURCE_FILES}
 )
+
+
+if (MSVC)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+	target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+	set(CMAKE_CXX_STANDARD 20)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
 
 
@@ -76,9 +88,4 @@ if (APPLE) # COPY DYLIBS IN THE LOADER FOLDER
 		COMMAND ${CMAKE_SOURCE_DIR}/../env/bin/python ${CMAKE_SOURCE_DIR}/../install/dylib_fix.py -p "$<TARGET_FILE:${PROJECT_NAME}>" -l "${CMAKE_BINARY_DIR}/_deps"  "${CMAKE_SOURCE_DIR}/../env" "${HOMEBREW_PREFIX}"
 		COMMENT "Fixing libraries, certificates, permissions, codesigning, quarantine"
 	)
-endif()
-
-
-if (MSVC)
-	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 endif()
