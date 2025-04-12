@@ -35,7 +35,7 @@ public:
     void print_to_parent(const std::string &message, const std::string &canal);
     fs::path cert_path_from_path(fs::path path) {
         #if defined(_WIN32) || defined(_WIN64)
-            std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
+            std::string perm_path = (path / "Contents" / "MacOS" / "cert.pem").string();
         #elif defined(__APPLE__) || defined(__MACH__)
             std::string perm_path = path / "Contents" / "MacOS" / "cert.pem";
         #else
@@ -49,9 +49,10 @@ public:
 MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj): d_parent(obj) {
     // d_path = d_path / ".." / "nn_tilde" / "models";
     min::path path = min::path("nn~", min::path::filetype::external); 
+    std::string path_str = path;
     if (path) {
-        d_cert_path = cert_path_from_path(fs::path(path));
-        d_path = fs::absolute(fs::path(path) / "..");
+        d_cert_path = cert_path_from_path(fs::path(path_str));
+        d_path = fs::absolute(fs::path(path_str) / "..");
     }
 }
 
@@ -60,8 +61,8 @@ MaxModelDownloader::MaxModelDownloader(c74::min::object_base* obj, std::string e
     std::string path_str = path;
     fs::path fs_path(path_str);
     if (path) {
-        d_cert_path = cert_path_from_path(fs::path(path));
-        d_path = fs::absolute(fs::path(path) / "..");
+        d_cert_path = cert_path_from_path(fs::path(path_str));
+        d_path = fs::absolute(fs::path(path_str) / "..");
     }
 }
 
