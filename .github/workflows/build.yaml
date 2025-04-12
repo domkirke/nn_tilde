@@ -244,15 +244,10 @@ jobs:
       - run: | 
           git submodule update --init --recursive
           git fetch --tags
-          GIT_TRACE=1 git describe --tags --always
-      - name: Setup LLVM
-        run: |
-          sudo apt install gcc-10 g++-10
       - name: Downloading Torch 
         run: |
           curl -L https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.3.1%2Bcpu.zip > "libtorch.zip"
           unzip libtorch.zip
-
       - name: Setup puredata
         run: |
           mkdir pd
@@ -277,20 +272,26 @@ jobs:
           cd build
           cmake ../src -DTorch_DIR=${{ github.workspace }}/libtorch/libtorch/share/cmake/Torch -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/pd/src -DPUREDATA_BIN_DIR=${{ github.workspace }}/pd/bin -A x64
           cmake --build . --config Release
-          cp ../vcpkg/installed/x64-windows/lib/*.lib ../src/externals
-          cp ../vcpkg/installed/x64-windows/bin/*.dll ../src/externals
+          
       - name: Max/MSP Package creation
         run: |
           mkdir nn_tilde
           mkdir nn_tilde/help
           mv src/externals nn_tilde
           cp src/frontend/maxmsp/nn_tilde/nn~.maxhelp nn_tilde/help
+          mkdir nn_tilde/support
+          cp libtorch/lib/* ../src/support
+          cp vcpkg/installed/x64-windows/lib/*.lib ../src/support
+          cp vcpkg/installed/x64-windows/bin/*.dll ../src/support
           tar -czvf nn_max_msp_windows_x64.tar.gz nn_tilde
       - name: PureData Package creation
         run: |
           Remove-Item -Force -Recurse nn_tilde
           mkdir nn_tilde
           mv build/frontend/puredata/nn_tilde/Release/* nn_tilde/
+          cp libtorch/lib/* nn_tilde/
+          cp vcpkg/installed/x64-windows/lib/*.lib nn_tilde/
+          cp vcpkg/installed/x64-windows/bin/*.dll nn_tilde/
           tar -czvf nn_puredata_windows_x64.tar.gz nn_tilde
       - name: Upload binaries
         uses: actions/upload-artifact@v4
