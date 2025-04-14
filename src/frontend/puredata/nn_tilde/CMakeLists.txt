@@ -1,14 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
 project(nn_tilde_pd)
-#find_package(Torch REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Torch REQUIRED)
+
 file(GLOB SRC *.cpp)
 
 add_library(nn SHARED ${SRC})
+
+if (MSVC)
+	set_property(TARGET nn PROPERTY CXX_STANDARD 20)
+	target_compile_features(nn PUBLIC "cxx_std_20")
+endif()
 
 # Get version from git for all platforms
 execute_process(
@@ -232,10 +238,8 @@ if(NOT $ENV{PD_EXTERNAL_PATH} STREQUAL "")
     )
 endif()
 
-
-
-target_include_directories(nn PRIVATE "${PUREDATA_INCLUDE_DIR}")
 target_link_libraries(nn PRIVATE backend)
+target_include_directories(nn PRIVATE "${PUREDATA_INCLUDE_DIR}")
 
 set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
 set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
@@ -252,8 +256,6 @@ include_directories(${CURL_INCLUDE_DIR})
 target_link_libraries(nn PRIVATE ${CURL_LIBRARY})
 
 target_link_libraries(nn PRIVATE nlohmann_json::nlohmann_json)
-target_compile_definitions(nn PRIVATE DOWNLOADED_MODELS_PATH="${MODELS_PATH_LOCATION}")
 if (MSVC)
     target_link_libraries(nn PRIVATE "${PUREDATA_BIN_DIR}/pd.lib" shlwapi.lib)
 endif()
-set_property(TARGET nn PROPERTY CXX_STANDARD 20)

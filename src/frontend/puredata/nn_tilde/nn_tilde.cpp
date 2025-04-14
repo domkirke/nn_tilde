@@ -1,23 +1,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <limits.h>
 #include <memory>
 #include <mutex>
 #include <exception>
 #include <string>
 #include <vector>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <dlfcn.h>
-#endif
-
-#ifdef _WIN32
-#include <windows.h>
-#include <shlwapi.h>
-#endif
 
 #ifndef VERSION
 #define VERSION "UNDEFINED"
@@ -43,21 +33,35 @@
 #include <unistd.h>
 #endif
 
+
+#include "../../../backend/backend.h"
+#include "../../../shared/circular_buffer.h"
+#include "../shared/pd_model_download.h"
+#include "../shared/pd_buffer_manager.h"
+
 #ifdef _WIN32
-std::string get_executable_path()
-{
-  HMODULE hModule = GetModuleHandle("nn~.dll");
-  if (hModule)
+  #define NOMINMAX
+  #include <windows.h>
+  #include <shlwapi.h>
+
+  std::string get_executable_path()
   {
-    char path[MAX_PATH];
-    GetModuleFileName(hModule, path, sizeof(path));
-    PathRemoveFileSpec(path); // Remove filename, leaving the path
-    SetDllDirectory(path);    // Add to DLL search path
+    HMODULE hModule = GetModuleHandle("nn~.dll");
+    if (hModule)
+    {
+      char path[MAX_PATH];
+      GetModuleFileName(hModule, path, sizeof(path));
+      PathRemoveFileSpec(path); // Remove filename, leaving the path
+      SetDllDirectory(path);    // Add to DLL search path
+      
+      std::string path_std = path;
+      return path_std;
+    }
   }
-  std::string path_std = path;
-  return path_std;
-}
+#else
+  #include <dlfcn.h>
 #endif
+
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <cstdint>
@@ -89,10 +93,6 @@ std::string get_executable_path()
 }
 #endif
 
-#include "../../../backend/backend.h"
-#include "../../../shared/circular_buffer.h"
-#include "../shared/pd_model_download.h"
-#include "../shared/pd_buffer_manager.h"
 
 using t_signal_setmultiout = void (*)(t_signal **, int);
 static t_signal_setmultiout g_signal_setmultiout;

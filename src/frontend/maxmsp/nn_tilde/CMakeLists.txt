@@ -8,50 +8,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(C74_MIN_API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../min-api)
+include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
 
 if (APPLE)
-	set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12")
 endif()
 
 
 #############################################################
 # MAX EXTERNAL
 #############################################################
-
-set(
-SOURCE_FILES
-	nn_tilde.cpp
-)
-
-
-
-include(${C74_MIN_API_DIR}/script/min-pretarget.cmake)
-
-include_directories( 
-	"${C74_INCLUDES}", 
-	"${CMAKE_CURRENT_SOURCE_DIR}/../shared",
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../shared",
-	"${CMAKE_CURRENT_SOURCE_DIR}/../../../shared",
-	# "${CURL_INCLUDE_LOCATION}"
-)
-
-
-add_library( 
-	${PROJECT_NAME} 
-	MODULE
-	${SOURCE_FILES}
-)
-
-
-if (MSVC)
-	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
-	target_compile_features(${PROJECT_NAME} PUBLIC "cxx_std_20")
-
-endif()
-
-find_package(Torch REQUIRED)
-
-# find_package(CURL REQUIRED HINTS ${CURL_LOCATION} PATHS ${CURL_LOCATION})
 
 if (UNIX)
 	execute_process(
@@ -60,38 +26,74 @@ if (UNIX)
 			OUTPUT_VARIABLE VERSION
 			OUTPUT_STRIP_TRAILING_WHITESPACE
 	)
-	message("${VERSION}")
+	message(${VERSION})
 	add_definitions(-DVERSION="${VERSION}")
 endif()
 
 
 
+set(
+SOURCE_FILES
+	nn_tilde.cpp
+)
+
+add_library( 
+	${PROJECT_NAME} 
+	MODULE
+	${SOURCE_FILES}
+)
+
+
+include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)
+
+if (MSVC)
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
+	target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+endif()
+
+include_directories( 
+	"${C74_INCLUDES}", 
+	"${CMAKE_CURRENT_SOURCE_DIR}/../shared",
+	"${CMAKE_CURRENT_SOURCE_DIR}/../../shared",
+)
+
+if (MSVC)
+	include_directories(${VCPKG_INCLUDE_DIR})
+	link_directories(${VCPKG_LIB_DIR})
+endif()
+
+
 target_link_libraries(${PROJECT_NAME} PRIVATE backend)
 
-
-
-set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
-set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
-set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
-include_directories(${CURL_INCLUDE_DIR})
-message("CURL: ${CURL_INCLUDE_DIR}")
-# find_package(CURL REQUIRED)
-
+if (UNIX)
+	set(CONDA_ENV_PATH "${CMAKE_SOURCE_DIR}/../env")
+	set(CURL_INCLUDE_DIR "${CONDA_ENV_PATH}/include")
+	set(CURL_LIBRARY "${CONDA_ENV_PATH}/lib/libcurl.dylib")
+	include_directories(${CURL_INCLUDE_DIR})
+elseif(MSVC)
+	set(VCPKG_PATH "${CMAKE_SOURCE_DIR}/../vcpkg")
+	set(CURL_INCLUDE_DIR "${VCPKG_PATH}/packages/curl_x64-windows/include")
+	set(CURL_LIBRARY "${VCPKG_PATH}/packages/curl_x64-windows/lib/libcurl.lib")
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${CURL_LIBRARY})
 
+
 if (APPLE) # SEARCH FOR TORCH DYLIB IN THE LOADER FOLDER
-	set_target_properties(${PROJECT_NAME} PROPERTIES
-	INSTALL_RPATH "@executable_path"
-	BUILD_WITH_INSTALL_RPATH FALSE 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	BUILD_WITH_INSTALL_RPATH FALSE
 	LINK_FLAGS "-Wl,-rpath,@loader_path/"
-	)
+)
 endif()
 
-include(${C74_MIN_API_DIR}/script/min-posttarget.cmake)
+
+
 
 if (APPLE) # COPY DYLIBS IN THE LOADER FOLDER
+
 	add_custom_command(
 		TARGET ${PROJECT_NAME}
 		POST_BUILD 
@@ -99,4 +101,10 @@ if (APPLE) # COPY DYLIBS IN THE LOADER FOLDER
 		COMMAND ${CMAKE_SOURCE_DIR}/../env/bin/python ${CMAKE_SOURCE_DIR}/../install/dylib_fix.py -p "$<TARGET_FILE:${PROJECT_NAME}>" -l "${CMAKE_BINARY_DIR}/_deps"  "${CMAKE_SOURCE_DIR}/../env" "${HOMEBREW_PREFIX}"
 		COMMENT "Fixing libraries, certificates, permissions, codesigning, quarantine"
 	)
+	
+endif()
+
+
+if (MSVC)
+	set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 endif()

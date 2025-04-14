@@ -89,6 +89,12 @@ public:
         str_id << this; 
         return str_id.str();
     }
+
+    void find_and_replace_char(std::string& str, char oldChar, char newChar) {
+        for (size_t pos = 0; (pos = str.find(oldChar, pos)) != std::string::npos; pos++) {
+            str[pos] = newChar;
+        }
+    }
 };
 
 ModelDownloader::ModelDownloader(fs::path download_location): d_path(download_location / "..") {}
@@ -115,13 +121,13 @@ bool ModelDownloader::has_valid_certificate() {
         return false;
     } else if (!fs::exists(d_cert_path)) {
         #if defined(_WIN32) || defined(_WIN64)
-            std::string error_message = "Could not find certificate";
+            std::string error_message = "Could not find certificate at " + d_cert_path.string();
         #elif defined(__APPLE__) || defined(__MACH__)
             std::string error_message = "Could not find certificate in external bundle";
         #elif defined(__linux__)
             std::string error_message = "Could not find certificate at " + d_cert_path.string() + "; did you install ca-certificates?";
         #else
-            std::string error_message = "Could not find certificate";
+            std::string error_message ="Could not find certificate at " + d_cert_path.string() + "; wrong compilation platform";
         #endif
         
         print_to_parent(error_message, "cwarn");
