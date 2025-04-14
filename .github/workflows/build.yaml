@@ -107,6 +107,7 @@ jobs:
           rm /usr/local/bin/python3-config
           rm /usr/local/bin/python3.13
           rm /usr/local/bin/python3.13-config
+          rm '/usr/local/bin/pip3.13'
           rm '/usr/local/bin/idle3'
           rm '/usr/local/bin/idle3.13'
           arch -x86_64 /usr/local/bin/brew install llvm
@@ -171,8 +172,8 @@ jobs:
           GIT_TRACE=1 git describe --tags --always
       - name: Setup LLVM
         run: |
+          sudo apt-get install -y ca-certificates
           sudo apt install gcc-10 g++-10
-
       - name: Setup miniconda
         run: |
           echo "architecture : $(uname -m)"
@@ -194,15 +195,6 @@ jobs:
           mv pd*/src .
           mv pd*/bin .
           cd ..
-      - name: Installing dependencies with vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg 
-          ./bootstrap-vcpkg.bat
-          ./vcpkg.exe integrate install
-          ./vcpkg.exe install curl
-          cd ..
-
       - name: Build
         run: |
           mkdir build
@@ -213,8 +205,6 @@ jobs:
           make
           cmake ../src -DCMAKE_PREFIX_PATH=${{ github.workspace }}/libtorch -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/pd/src -DPUREDATA_BIN_DIR=${{ github.workspace }}/pd/bin -A x64
           cmake --build . --config Release
-          cp ../vcpkg/installed/x64-windows/lib/*.lib ../src/externals
-          cp ../vcpkg/installed/x64-windows/bin/*.dll ../src/externals
       - name: Max/MSP Package creation
         run: |
           mkdir nn_tilde
@@ -283,8 +273,7 @@ jobs:
           cp libtorch/lib/* nn_tilde/support
           cp vcpkg/installed/x64-windows/lib/*.lib nn_tilde/support
           cp vcpkg/installed/x64-windows/bin/*.dll nn_tilde/support
-          curl -L https://curl.se/ca/cacert.pem -o nn_tilde/support/
-          cacert.pem
+          curl -L https://curl.se/ca/cacert.pem -o nn_tilde/support/cacert.pem
           tar -czvf nn_max_msp_windows_x64.tar.gz nn_tilde
       - name: PureData Package creation
         run: |
