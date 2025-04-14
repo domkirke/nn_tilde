@@ -177,7 +177,7 @@ jobs:
       - name: Setup miniconda
         run: |
           echo "architecture : $(uname -m)"
-          curl -L ${{ matrix.conda-url }} > miniconda.sh
+          curl --cacert /etc/ssl/certs/ca-certificates.crt -L ${{ matrix.conda-url }} > miniconda.sh
           chmod +x ./miniconda.sh
           bash ./miniconda.sh -b -u -p ./env
           source ./env/bin/activate
@@ -187,10 +187,10 @@ jobs:
       - name: Setup puredata
         run: |
           mkdir puredata_include
-          curl -L https://raw.githubusercontent.com/pure-data/pure-data/master/src/m_pd.h -o puredata_include/m_pd.h
+          curl --cacert /etc/ssl/certs/ca-certificates.crt -L https://raw.githubusercontent.com/pure-data/pure-data/master/src/m_pd.h -o puredata_include/m_pd.h
           mkdir pd
           cd pd
-          curl -L https://msp.puredata.info/Software/pd-0.55-2.msw.zip -o pd.zip
+          curl --cacert /etc/ssl/certs/ca-certificates.crt -L https://msp.puredata.info/Software/pd-0.55-2.msw.zip -o pd.zip
           unzip pd.zip
           mv pd*/src .
           mv pd*/bin .
