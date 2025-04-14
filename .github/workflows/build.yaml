@@ -196,16 +196,9 @@ jobs:
           cd build
           cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include
           make
-      - name: Max/MSP Package creation
-        run: |
-          mkdir nn_tilde
-          mkdir nn_tilde/help
-          mv src/externals nn_tilde
-          cp src/frontend/maxmsp/nn_tilde/nn~.maxhelp nn_tilde/help
-          tar -czvf nn_max_msp_windows_x64.tar.gz nn_tilde
       - name: PureData Package creation
         run: |
-          rm -fr nn_tilde
+          mkdir nn_tilde
           mv build/frontend/puredata/nn_tilde .
           mv src/frontend/puredata/nn_tilde/nn~-help.pd nn_tilde
           rm -fr nn_tilde/CMakeFiles/ nn_tilde/*.cmake nn_tilde/Makefile
