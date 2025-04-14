@@ -287,7 +287,7 @@ jobs:
           tar -czvf nn_max_msp_windows_x64.tar.gz nn_tilde
       - name: PureData Package creation
         run: |
-          rm -rf nn_tilde
+          Remove-Item -Recurse -Force nn_tilde
           mkdir nn_tilde
           mv build/frontend/puredata/nn_tilde/Release/* nn_tilde/
           cp libtorch/lib/* nn_tilde/
