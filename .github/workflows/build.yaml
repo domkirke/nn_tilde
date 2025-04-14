@@ -188,13 +188,6 @@ jobs:
         run: |
           mkdir puredata_include
           curl --cacert /etc/ssl/certs/ca-certificates.crt -L https://raw.githubusercontent.com/pure-data/pure-data/master/src/m_pd.h -o puredata_include/m_pd.h
-          mkdir pd
-          cd pd
-          curl --cacert /etc/ssl/certs/ca-certificates.crt -L https://msp.puredata.info/Software/pd-0.55-2.msw.zip -o pd.zip
-          unzip pd.zip
-          mv pd*/src .
-          mv pd*/bin .
-          cd ..
       - name: Build
         run: |
           mkdir build
