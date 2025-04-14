@@ -196,7 +196,7 @@ jobs:
           cd build
           cmake ../src -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_PREFIX_PATH=${{ github.workspace }}/env/lib/python3.12/site-packages/torch -DCMAKE_BUILD_TYPE=Release -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/puredata_include -DCMAKE_OSX_ARCHITECTURES=arm64
           make
-          cmake ../src -DCMAKE_PREFIX_PATH=${{ github.workspace }}/libtorch -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/pd/src -DPUREDATA_BIN_DIR=${{ github.workspace }}/pd/bin -A x64
+          cmake ../src -DCMAKE_PREFIX_PATH=${{ github.workspace }}/libtorch -DPUREDATA_INCLUDE_DIR=${{ github.workspace }}/pd/src -DPUREDATA_BIN_DIR=${{ github.workspace }}/pd/bin 
           cmake --build . --config Release
       - name: Max/MSP Package creation
         run: |
